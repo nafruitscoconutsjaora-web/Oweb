@@ -28,13 +28,31 @@ define('APP_ENV', getenv('APP_ENV') ?: 'production');
 define('APP_NAME', getenv('APP_NAME') ?: 'Verifex SMS Hub');
 define('APP_URL', rtrim(getenv('APP_URL') ?: '', '/'));
 
-// Database Credentials (Environment variables preferred, fallbacks for server setup)
-define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
-define('DB_PORT', (int)(getenv('DB_PORT') ?: 3306));
-define('DB_NAME', getenv('DB_NAME') ?: 'sms_platform');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
-define('DB_CHARSET', 'utf8mb4');
+// Load database credentials saved by /installer if available
+$dbCredentialsFile = __DIR__ . '/db_credentials.php';
+if (file_exists($dbCredentialsFile)) {
+    require_once $dbCredentialsFile;
+}
+
+// Database Credentials (from installer credentials, environment variables, or fallback)
+if (!defined('DB_HOST')) {
+    define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
+}
+if (!defined('DB_PORT')) {
+    define('DB_PORT', (int)(getenv('DB_PORT') ?: 3306));
+}
+if (!defined('DB_NAME')) {
+    define('DB_NAME', getenv('DB_NAME') ?: 'sms_platform');
+}
+if (!defined('DB_USER')) {
+    define('DB_USER', getenv('DB_USER') ?: 'root');
+}
+if (!defined('DB_PASS')) {
+    define('DB_PASS', getenv('DB_PASS') !== false ? (string)getenv('DB_PASS') : '');
+}
+if (!defined('DB_CHARSET')) {
+    define('DB_CHARSET', 'utf8mb4');
+}
 
 // Security & Encryption Secret
 define('APP_KEY', getenv('APP_KEY') ?: 'vfx_secret_key_89324789324798327498234');

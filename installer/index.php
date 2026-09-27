@@ -622,13 +622,13 @@ $csrfToken = bin2hex(random_bytes(16));
             const pass = document.getElementById('db_pass').value;
 
             if (!host || !db || !user) {
-                showAlert('Please fill in all database fields.');
+                showAlert('Please fill in Database Host, Database Name, and Username.');
                 return;
             }
 
             const btn = document.getElementById('btn-save-db');
             btn.disabled = true;
-            btn.innerHTML = 'Saving...';
+            btn.innerHTML = 'Connecting & Saving...';
 
             try {
                 const res = await fetch('/installer/api.php?action=save_db', {
@@ -640,11 +640,10 @@ $csrfToken = bin2hex(random_bytes(16));
                 if (data.success) {
                     goToStep(3);
                 } else {
-                    showAlert(data.message || 'Failed to save database configuration.');
+                    showAlert('Database Connection Error:\n\n' + (data.message || 'Failed to connect to MySQL.'));
                 }
             } catch (err) {
-                // If preview or offline, proceed smoothly
-                goToStep(3);
+                showAlert('Unable to reach installer API: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Save &amp; Migrate &rarr;';
@@ -660,29 +659,39 @@ $csrfToken = bin2hex(random_bytes(16));
             btn.disabled = true;
             progress.classList.remove('hidden');
             bar.style.width = '30%';
-            status.innerHTML = 'Executing database/schema.sql...';
+            bar.className = 'bg-[#6D28D9] h-2.5 rounded-full transition-all duration-300';
+            status.className = 'text-xs text-gray-600';
+            status.innerHTML = 'Executing database/schema.sql statements...';
 
             try {
                 const res = await fetch('/installer/api.php?action=migrate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
-                bar.style.width = '70%';
-                status.innerHTML = 'Creating tables and seeding initial services...';
+                const data = await res.json();
 
-                await new Promise(r => setTimeout(r, 600));
-                bar.style.width = '100%';
-                status.innerHTML = 'Schema created successfully!';
+                if (data.success) {
+                    bar.style.width = '100%';
+                    bar.className = 'bg-green-600 h-2.5 rounded-full transition-all duration-300';
+                    status.className = 'text-xs text-green-700 font-semibold';
+                    status.innerHTML = `&check; ${data.message || 'Database schema migrated and verified successfully!'}`;
 
-                setTimeout(() => {
-                    goToStep(4);
-                }, 400);
+                    setTimeout(() => {
+                        goToStep(4);
+                    }, 600);
+                } else {
+                    bar.style.width = '100%';
+                    bar.className = 'bg-red-600 h-2.5 rounded-full transition-all duration-300';
+                    status.className = 'text-xs text-red-600 font-semibold';
+                    status.innerHTML = `&cross; Migration Failed: ${data.message || 'Error executing schema.'}`;
+                    showAlert('Schema Migration Failed:\n\n' + (data.message || 'Please check database permissions or SQL errors.'));
+                }
             } catch (err) {
                 bar.style.width = '100%';
-                status.innerHTML = 'Schema verified!';
-                setTimeout(() => {
-                    goToStep(4);
-                }, 400);
+                bar.className = 'bg-red-600 h-2.5 rounded-full transition-all duration-300';
+                status.className = 'text-xs text-red-600 font-semibold';
+                status.innerHTML = `&cross; Network Error: ${err.message}`;
+                showAlert('Failed to connect to migration endpoint: ' + err.message);
             } finally {
                 btn.disabled = false;
             }
@@ -695,23 +704,23 @@ $csrfToken = bin2hex(random_bytes(16));
             const confirm = document.getElementById('admin_password_confirm').value;
 
             if (!name || !email || !pass) {
-                showAlert('Please fill in all admin fields.');
+                showAlert('Please fill in all administrator fields.');
                 return;
             }
 
             if (pass !== confirm) {
-                showAlert('Passwords do not match.');
+                showAlert('Password confirmation does not match.');
                 return;
             }
 
             if (pass.length < 8) {
-                showAlert('Password must be at least 8 characters.');
+                showAlert('Password must be at least 8 characters long.');
                 return;
             }
 
             const btn = document.getElementById('btn-create-admin');
             btn.disabled = true;
-            btn.innerHTML = 'Creating Admin...';
+            btn.innerHTML = 'Creating Administrator...';
 
             try {
                 const res = await fetch('/installer/api.php?action=create_admin', {
@@ -724,11 +733,10 @@ $csrfToken = bin2hex(random_bytes(16));
                     document.getElementById('summary-email').innerText = email;
                     goToStep(5);
                 } else {
-                    showAlert(data.message || 'Failed to create administrator account.');
+                    showAlert('Administrator Creation Failed:\n\n' + (data.message || 'Error creating admin account.'));
                 }
             } catch (err) {
-                document.getElementById('summary-email').innerText = email;
-                goToStep(5);
+                showAlert('API request error: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Create Administrator &rarr;';
@@ -743,7 +751,7 @@ $csrfToken = bin2hex(random_bytes(16));
 
             const btn = document.getElementById('btn-save-settings');
             btn.disabled = true;
-            btn.innerHTML = 'Finalizing...';
+            btn.innerHTML = 'Finalizing Installation...';
 
             try {
                 const res = await fetch('/installer/api.php?action=save_settings', {
@@ -752,9 +760,13 @@ $csrfToken = bin2hex(random_bytes(16));
                     body: JSON.stringify({ app_name: appName, app_url: appUrl, currency_symbol: currencySymbol, support_email: supportEmail })
                 });
                 const data = await res.json();
-                goToStep(6);
+                if (data.success) {
+                    goToStep(6);
+                } else {
+                    showAlert('Failed to finalize installation:\n\n' + (data.message || 'Error locking installer.'));
+                }
             } catch (err) {
-                goToStep(6);
+                showAlert('Finalization error: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Finalize Installation &rarr;';

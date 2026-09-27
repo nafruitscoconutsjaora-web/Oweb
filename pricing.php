@@ -3,7 +3,6 @@ declare(strict_types=1);
 $pageTitle = 'Pricing';
 require_once __DIR__ . '/includes/header.php';
 
-$db = Database::getConnection();
 $user = current_user();
 $userId = $user ? (int)$user['id'] : null;
 
@@ -12,20 +11,26 @@ $services = [];
 $samplePricing = [];
 
 try {
-    $countries = $db->query('SELECT * FROM countries WHERE is_active = 1 ORDER BY sort_order ASC, name ASC')->fetchAll();
-    $services = $db->query('SELECT * FROM services WHERE is_active = 1 ORDER BY sort_order ASC, name ASC LIMIT 20')->fetchAll();
+    $db = Database::getConnection();
+    if ($db) {
+        $stmtC = $db->query('SELECT * FROM countries WHERE is_active = 1 ORDER BY sort_order ASC, name ASC');
+        $countries = $stmtC ? $stmtC->fetchAll() : [];
 
-    if (!empty($countries) && !empty($services)) {
-        $firstCountry = $countries[0];
-        foreach ($services as $svc) {
-            $calc = Pricing::calculate((int)$firstCountry['id'], (int)$svc['id'], $userId);
-            if ($calc['eligible']) {
-                $samplePricing[] = [
-                    'service_name' => $svc['name'],
-                    'country_name' => $firstCountry['name'],
-                    'flag'         => $firstCountry['flag_emoji'],
-                    'price'        => $calc['price']
-                ];
+        $stmtS = $db->query('SELECT * FROM services WHERE is_active = 1 ORDER BY sort_order ASC, name ASC LIMIT 20');
+        $services = $stmtS ? $stmtS->fetchAll() : [];
+
+        if (!empty($countries) && !empty($services)) {
+            $firstCountry = $countries[0];
+            foreach ($services as $svc) {
+                $calc = Pricing::calculate((int)$firstCountry['id'], (int)$svc['id'], $userId);
+                if ($calc['eligible']) {
+                    $samplePricing[] = [
+                        'service_name' => $svc['name'],
+                        'country_name' => $firstCountry['name'],
+                        'flag'         => $firstCountry['flag_emoji'],
+                        'price'        => $calc['price']
+                    ];
+                }
             }
         }
     }

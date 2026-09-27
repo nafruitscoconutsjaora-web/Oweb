@@ -3,7 +3,6 @@ declare(strict_types=1);
 $pageTitle = 'Available Services';
 require_once __DIR__ . '/includes/header.php';
 
-$db = Database::getConnection();
 $search = trim($_GET['q'] ?? '');
 $category = trim($_GET['category'] ?? '');
 
@@ -11,26 +10,29 @@ $services = [];
 $categories = [];
 
 try {
-    $catStmt = $db->query('SELECT DISTINCT category FROM services WHERE is_active = 1 AND category IS NOT NULL');
-    $categories = $catStmt->fetchAll(PDO::FETCH_COLUMN);
+    $db = Database::getConnection();
+    if ($db) {
+        $catStmt = $db->query('SELECT DISTINCT category FROM services WHERE is_active = 1 AND category IS NOT NULL');
+        $categories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_COLUMN) : [];
 
-    $query = 'SELECT * FROM services WHERE is_active = 1';
-    $params = [];
+        $query = 'SELECT * FROM services WHERE is_active = 1';
+        $params = [];
 
-    if ($search !== '') {
-        $query .= ' AND (name LIKE :q OR description LIKE :q)';
-        $params['q'] = '%' . $search . '%';
+        if ($search !== '') {
+            $query .= ' AND (name LIKE :q OR description LIKE :q)';
+            $params['q'] = '%' . $search . '%';
+        }
+
+        if ($category !== '') {
+            $query .= ' AND category = :cat';
+            $params['cat'] = $category;
+        }
+
+        $query .= ' ORDER BY sort_order ASC, name ASC';
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        $services = $stmt ? $stmt->fetchAll() : [];
     }
-
-    if ($category !== '') {
-        $query .= ' AND category = :cat';
-        $params['cat'] = $category;
-    }
-
-    $query .= ' ORDER BY sort_order ASC, name ASC';
-    $stmt = $db->prepare($query);
-    $stmt->execute($params);
-    $services = $stmt->fetchAll();
 } catch (Throwable $e) {
     error_log('[SERVICES ERROR] ' . $e->getMessage());
 }

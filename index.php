@@ -3,17 +3,18 @@ declare(strict_types=1);
 $pageTitle = 'Fast & Reliable SMS Verification Services';
 require_once __DIR__ . '/includes/header.php';
 
-$db = Database::getConnection();
-
 $services = [];
 $countries = [];
 
 try {
-    $stmtSvc = $db->query('SELECT * FROM services WHERE is_active = 1 ORDER BY sort_order ASC, name ASC LIMIT 12');
-    $services = $stmtSvc->fetchAll();
+    $db = Database::getConnection();
+    if ($db) {
+        $stmtSvc = $db->query('SELECT * FROM services WHERE is_active = 1 ORDER BY sort_order ASC, name ASC LIMIT 12');
+        $services = $stmtSvc ? $stmtSvc->fetchAll() : [];
 
-    $stmtCountry = $db->query('SELECT * FROM countries WHERE is_active = 1 ORDER BY sort_order ASC, name ASC LIMIT 16');
-    $countries = $stmtCountry->fetchAll();
+        $stmtCountry = $db->query('SELECT * FROM countries WHERE is_active = 1 ORDER BY sort_order ASC, name ASC LIMIT 16');
+        $countries = $stmtCountry ? $stmtCountry->fetchAll() : [];
+    }
 } catch (Throwable $e) {
     error_log('[INDEX FETCH ERROR] ' . $e->getMessage());
 }

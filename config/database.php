@@ -49,11 +49,32 @@ final class Database
                 error_log('[DB CONNECTION ERROR] ' . $e->getMessage());
 
                 // Return sanitized error message without exposing connection parameters
-                throw new RuntimeException('Unable to establish secure database connection. Please verify server environment configuration.');
+                throw new RuntimeException('Unable to establish secure database connection: ' . $e->getMessage());
             }
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Safely get PDO instance or return null if not connected
+     */
+    public static function getSafeConnection(): ?PDO
+    {
+        try {
+            return self::getConnection();
+        } catch (Throwable $e) {
+            error_log('[SAFE DB CONNECTION ERROR] ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Reset active connection instance (useful after configuration changes)
+     */
+    public static function resetConnection(): void
+    {
+        self::$instance = null;
     }
 
     /**
@@ -62,7 +83,11 @@ final class Database
     public static function isConnected(): bool
     {
         try {
-            self::getConnection()->query('SELECT 1');
+            $conn = self::getSafeConnection();
+            if ($conn === null) {
+                return false;
+            }
+            $conn->query('SELECT 1');
             return true;
         } catch (Throwable) {
             return false;
