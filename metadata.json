@@ -1,0 +1,6 @@
+{
+  "name": "SMS Verification Platform",
+  "description": "Production-ready SMS verification and virtual number reseller platform built with PHP 8.2, MySQL 8, Tailwind CSS, and Vanilla JavaScript.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

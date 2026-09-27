@@ -1,0 +1,11 @@
+{
+  "name": "sms-reseller-platform",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "exit 0",
+    "dev": "node server.js",
+    "lint": "exit 0"
+  }
+}

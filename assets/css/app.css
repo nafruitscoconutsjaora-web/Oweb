@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #6D28D9;
+  --color-secondary: #8B5CF6;
+  --color-purple-soft: #F3E8FF;
+  --color-bg: #FAFAFC;
+  --color-text: #171522;
+  --color-muted: #6B7280;
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-danger: #DC2626;
+  --radius-card: 18px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Premium Fintech Cards */
+.card-premium {
+  background-color: #ffffff;
+  border-radius: var(--radius-card);
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 4px 20px -2px rgba(109, 40, 217, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.card-premium:hover {
+  border-color: #DDD6FE;
+  box-shadow: 0 8px 30px -4px rgba(109, 40, 217, 0.08);
+}
+
+.badge-purple {
+  background-color: var(--color-purple-soft);
+  color: var(--color-primary);
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.badge-success {
+  background-color: #DCFCE7;
+  color: var(--color-success);
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.badge-warning {
+  background-color: #FEF3C7;
+  color: var(--color-warning);
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.badge-danger {
+  background-color: #FEE2E2;
+  color: var(--color-danger);
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+/* Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.25);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #5B21B6 0%, #6D28D9 100%);
+  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: var(--color-text);
+  border: 1px solid #E5E7EB;
+  font-weight: 600;
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: #F9FAFB;
+  border-color: #D1D5DB;
+}
+
+/* Pulse animation for active waiting */
+@keyframes pulse-purple {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.pulse-purple {
+  animation: pulse-purple 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Clean Toast Notification */
+#toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
